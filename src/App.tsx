@@ -1,7 +1,20 @@
-import { ConnectWallet } from "@thirdweb-dev/react";
+import { useSDK } from "@thirdweb-dev/react";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 import "./styles/Home.css";
+import { InjectedConnector } from "wagmi/connectors/injected";
 
 export default function Home() {
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  });
+  const { disconnect } = useDisconnect();
+
+  const sdk = useSDK();
+
+  console.log("account", { address, isConnected });
+  console.log("sdk", sdk);
+
   return (
     <div className="container">
       <main className="main">
@@ -16,7 +29,17 @@ export default function Home() {
         </p>
 
         <div className="connect">
-          <ConnectWallet />
+          {isConnected ? (
+            <div>
+              Connected to {address}
+              <button onClick={() => disconnect()}>Disconnect</button>
+              <button onClick={() => sdk?.wallet.sign("wagmi x thirdweb")}>
+                Sign a message with wagmi wallet
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => connect()}>Connect</button>
+          )}
         </div>
 
         <div className="grid">
